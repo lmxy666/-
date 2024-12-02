@@ -1,5 +1,7 @@
 #include "Chess.h"
 #include <mmsystem.h>
+#include <fstream>
+using namespace std;
 #pragma comment (lib,"winmm.lib")
 
 void putimagePNG1(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y为Y坐标
@@ -76,10 +78,22 @@ void Chess::Luozi(ChessPos* pos, chess_kind kind)
 		putimagePNG1(x, y, &chessBlackImg);  //放置黑色棋子图片
 	}
 	update(pos);
+	ofstream outfile;
+	outfile.open("information.txt",ios::app);
+	if (!outfile) //检查文件是否正常打开//不是用于检查文件是否存在
+	{
+		cout << "abc.txt can't open" << endl;
+		abort(); //打开失败，结束程序
+	}
+	else {
+		outfile << pos->row <<endl<< pos->col << endl;
+		outfile.close();
+	}
 }
 
 bool Chess::Click(int x, int y, ChessPos* pos)
 {
+	if(x<30||y<25)	mciSendString(L"play res/警报.mp3", 0, 0, 0);
 	int col = (x - margin_x) / chessSize;
 	int row = (y - margin_y) / chessSize;
 	int leftTopPosX = margin_x + chessSize * col;
@@ -98,6 +112,9 @@ bool Chess::Click(int x, int y, ChessPos* pos)
 			if (chessMap[pos->row][pos->col] == 0) //判断原先是否有棋子
 			{
 				ret = true;
+			}
+			else {
+				mciSendString(L"play res/警报.mp3", 0, 0, 0);
 			}
 			break;
 		}
@@ -164,10 +181,40 @@ bool Chess::over()
 		if (playerFlag == false) {
 			mciSendString(L"play res/胜利结算.mp3", 0, 0, 0);
 			loadimage(0, L"res/胜利.jpg");
+			LPCTSTR title = _T("复盘本局");
+			RECT titler;
+			settextstyle(60, 0, _T("黑体"));//设置文本类型 
+			settextcolor(WHITE);
+			titler.left = 897 / 2 - textwidth(title) / 2;
+			titler.right = titler.left + textwidth(title);
+			titler.top = 895 / 1.5;
+			titler.bottom = titler.top + textheight(title);
+			outtextxy(titler.left, titler.top, title);
+			while (true)
+			{
+				ExMessage mess;
+				getmessage(&mess, EM_MOUSE);
+				if (mess.lbutton) {
+					if (PointInRect(mess.x, mess.y, titler)) {
+						X = 4;
+					}
+				}
+			}
+			Sleep(100);
 		}
 		else {
 			loadimage(0, L"res/失败.jpg");
 			mciSendString(L"play res/不错.mp3", 0, 0, 0);
+			LPCTSTR title = _T("复盘本局");
+			RECT titler;
+			settextstyle(60, 0, _T("黑体"));//设置文本类型 
+			settextcolor(WHITE);
+			titler.left = 897 / 2 - textwidth(title) / 2;
+			titler.right = titler.left + textwidth(title);
+			titler.top = 895 / 1.5;
+			titler.bottom = titler.top + textheight(title);
+			outtextxy(titler.left, titler.top, title);
+
 		}
 
 		_getch();
@@ -263,4 +310,58 @@ bool Chess::checkWin()
 	}
 
 	return false;
+}
+
+void Chess::Stock()
+{
+	std::ifstream inputFile("information.txt");
+	if (!inputFile.is_open()) {
+		cerr << "无法打开文件!" << endl;
+		return;
+	}
+	int number;
+	while (inputFile >> number) {
+		information.push_back(number);
+		num++;
+	}
+
+	inputFile.close();
+	return;
+}
+
+void Chess::play()
+{
+	int i = 0;
+	// 创建游戏窗口
+	initgraph(897, 895, EW_SHOWCONSOLE);
+
+	// 显示棋盘图片
+	loadimage(0, L"res/棋盘2.jpg");
+	while (true)
+	{
+		ChessPos* pos = new ChessPos;
+		pos->row = information[i++];
+		pos->col = information[i++];
+		Luozi(pos, black);
+		if (over()) {
+			init();
+			continue;
+		}
+		Sleep(100);
+		pos->row = information[i++];
+		pos->col = information[i++];
+		Luozi(pos, white);
+		if (over()) {
+			init();
+			continue;
+		}
+		Sleep(100);
+	}
+
+}
+
+void Chess::Fupan()
+{
+	Stock();
+	play();
 }

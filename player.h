@@ -5,6 +5,7 @@ class player
 public:
 	void init(Chess* chess);
 	void go();
+	void gowhite();
 
 private:
 	Chess* chess;

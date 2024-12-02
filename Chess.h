@@ -3,6 +3,7 @@
 #include <graphics.h> //easyx
 #include <vector>
 #include<conio.h>
+extern int X;
 using std::vector;
 const int BOARD_GRAD_SIZE = 13;
 struct  ChessData {
@@ -51,6 +52,20 @@ public:
 	bool playerFlag; //true:该黑走 false:该白走
 	int getchessdata(int row, int col);
 	int getchessdata(ChessPos* pos);
+	bool is_valid_move(int x, int y) const {
+		return (x >= 0 && x < BOARD_GRAD_SIZE && y >= 0 && y < BOARD_GRAD_SIZE && chessMap[x][y] == 0);
+	}
+	void make_move(int x, int y, int A[BOARD_GRAD_SIZE][BOARD_GRAD_SIZE], chess_kind kind) {
+		A[x][y] = kind;
+	}//在虚拟棋盘上下棋
+	void undo_move(int x, int y, int A[BOARD_GRAD_SIZE][BOARD_GRAD_SIZE]) {
+		A[x][y] = 0;
+	}//在虚拟棋盘上撤销棋
+	vector<vector<int>> chessMap; //存储棋子分布数据 0：空白 1：黑子 -1：白子
+	bool PointInRect(int x, int y, RECT& r)
+	{
+		return (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+	}
 
 private:
 	IMAGE chessBlackImg; //黑棋棋子
@@ -61,9 +76,15 @@ private:
 	int margin_y; //棋盘的顶部边界
 	float chessSize; //棋子大小
 
-	vector<vector<int>> chessMap; //存储棋子分布数据 0：空白 1：黑子 -1：白子
 
 	void update(ChessPos* pos);
 	bool checkWin();//检查是否胜利
 	ChessPos lastPos; //最近落子位置
+public:
+	void Stock();
+	void play();
+	void Fupan();
+private:
+	vector<int> information;
+	int num;
 };
