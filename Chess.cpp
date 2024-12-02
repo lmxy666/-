@@ -181,7 +181,7 @@ bool Chess::over()
 		if (playerFlag == false) {
 			mciSendString(L"play res/胜利结算.mp3", 0, 0, 0);
 			loadimage(0, L"res/胜利.jpg");
-			LPCTSTR title = _T("复盘本局");
+			LPCTSTR title = _T("再来一局");
 			RECT titler;
 			settextstyle(60, 0, _T("黑体"));//设置文本类型 
 			settextcolor(WHITE);
@@ -197,6 +197,7 @@ bool Chess::over()
 				if (mess.lbutton) {
 					if (PointInRect(mess.x, mess.y, titler)) {
 						X = 4;
+						return true;
 					}
 				}
 			}
@@ -205,7 +206,7 @@ bool Chess::over()
 		else {
 			loadimage(0, L"res/失败.jpg");
 			mciSendString(L"play res/不错.mp3", 0, 0, 0);
-			LPCTSTR title = _T("复盘本局");
+			LPCTSTR title = _T("再来一局");
 			RECT titler;
 			settextstyle(60, 0, _T("黑体"));//设置文本类型 
 			settextcolor(WHITE);
@@ -214,7 +215,18 @@ bool Chess::over()
 			titler.top = 895 / 1.5;
 			titler.bottom = titler.top + textheight(title);
 			outtextxy(titler.left, titler.top, title);
-
+			while (true)
+			{
+				ExMessage mess;
+				getmessage(&mess, EM_MOUSE);
+				if (mess.lbutton) {
+					if (PointInRect(mess.x, mess.y, titler)) {
+						X = 4;
+						return true;
+					}
+				}
+			}
+			Sleep(100);
 		}
 
 		_getch();

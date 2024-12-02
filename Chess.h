@@ -42,6 +42,7 @@ public:
 				row.push_back(0);
 			chessMap.push_back(row);
 		}
+		num = 0;
 	}
 
 	void init(); //≥ı ºªØ

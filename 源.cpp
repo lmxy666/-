@@ -15,6 +15,6 @@ int main()
 	if (X == 1) game.play();
 	else if (X == 2) game.playpvp();
 	else if (X == 3) game.play1();
-	else if (X == 4) chess.Fupan();
+	if (X == 4) chess.Fupan();
 	return 0;
 }
